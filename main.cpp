@@ -6,11 +6,16 @@
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
 
+#define NO_ERROR 0
 #define ERROR_GLFW_INIT_FAILED 1
 #define ERROR_GLFW_WINDOW_CREATION_FAILED 2
 #define ERROR_GLEW_INIT_FAILED 3
+#define ERROR_SHADER_PROGRAM_FAILED 4
+#define ERROR_SHADER_COMPILATION_FAILED 5
+#define ERROR_SHADER_LINK_FAILED 6
+#define ERROR_SHADER_VALIDATION_FAILED 7
 
-GLuint VAO, VBO, shader;
+GLuint VAO, VBO, shaderProgram;
 
 // Vertex Shader
 static const char* vShader = "			\n\
@@ -20,7 +25,7 @@ layout (location = 0) in vec3 pos;		\n\
 										\n\
 void main()								\n\
 {										\n\
-	gl_Position = vec4(pos, 1.0f);		\n\
+	gl_Position = vec4(0.4f * pos, 1.0f);		\n\
 }";
 
 // Fragment Shader
@@ -33,6 +38,88 @@ void main()									\n\
 {											\n\
 	color = vec4(0.3f, 0.4f, 1.0f, 1.0f);	\n\
 }";
+
+int AddShader(GLuint program, const char* shaderCode, GLenum shaderType)
+{
+	GLuint shader = glCreateShader(shaderType);
+
+	const GLchar* code[1];
+	code[0] = shaderCode;
+
+	GLint codeLength[1];
+	codeLength[0] = strlen(shaderCode);
+
+	glShaderSource(shader, 1, code, codeLength);
+	glCompileShader(shader);
+
+	GLint result = 0;
+	GLchar log[1024] = { 0 };
+
+	// Compilation
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+
+	if (!result)
+	{
+		glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+
+		std::cout << "[ERROR]: Shader program " << shaderType << " compilation Failed!\n[INFO]: " << log << std::endl;
+		return ERROR_SHADER_COMPILATION_FAILED;
+	}
+
+	glAttachShader(shaderProgram, shader);
+
+	return NO_ERROR;
+}
+
+int CompileShaders()
+{
+	shaderProgram = glCreateProgram();
+
+	if (!shaderProgram)
+	{
+		std::cout << "[ERROR]: Shader program Failed!" << std::endl;
+
+		return ERROR_SHADER_PROGRAM_FAILED;
+	}
+
+	if (AddShader(shaderProgram, vShader, GL_VERTEX_SHADER) != NO_ERROR)
+	{
+		return ERROR_SHADER_COMPILATION_FAILED;
+	}
+	if (AddShader(shaderProgram, fShader, GL_FRAGMENT_SHADER) != NO_ERROR)
+	{
+		return ERROR_SHADER_COMPILATION_FAILED;
+	}
+
+	GLint result = 0;
+	GLchar log[1024] = { 0 };
+
+	// Linking
+	glLinkProgram(shaderProgram);
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
+	
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderProgram, sizeof(log), NULL, log);
+
+		std::cout << "[ERROR]: Shader program linking Failed! \n[INFO]: " << log << std::endl;
+		return ERROR_SHADER_LINK_FAILED;
+	}
+
+	// Validation
+	glValidateProgram(shaderProgram);
+	glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &result);
+
+	if (!result)
+	{
+		glGetProgramInfoLog(shaderProgram, sizeof(log), NULL, log);
+
+		std::cout << "[ERROR]: Shader program validation Failed! \n[INFO]: " << log << std::endl;
+		return ERROR_SHADER_VALIDATION_FAILED;
+	}
+
+	return NO_ERROR;
+}
 
 void CreateTriangle()
 {
@@ -111,6 +198,9 @@ int main()
 	// Setup Viewport size
 	glViewport(0, 0, bufferWidth, bufferHeight);
 
+	CreateTriangle();
+	CompileShaders();
+
 	// Main loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -121,6 +211,15 @@ int main()
 		glClearColor(1.0f, 0.3f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glUseProgram(shaderProgram);
+
+		glBindVertexArray(VAO);
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glBindVertexArray(0);
+
+		glUseProgram(0);
 
 		// Double buffer swap
 		glfwSwapBuffers(mainWindow);
