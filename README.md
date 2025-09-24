@@ -12,4 +12,10 @@ Index Draws <br />
 Types of Projection <br />
 Camera control and movement <br />
 Texture Mapping <br />
-Phong Lighting Model <br />
+Phong Lighting Model - Most common <br />
+    - Directional light - like the sun <br />
+    - Point light - like the lightbulb in a room <br />
+    - Spot light - like a flashlight or a torch <br />
+Importing pre-made models (Blender, 3DS Max, Maya) <br />
+Shadow Mpping (from multiple light sources) - directional and omni <br />
+Skybox <br />
