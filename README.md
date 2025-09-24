@@ -1,6 +1,8 @@
 # Lumos
 OpenGL Light
 
+Uses GLFW and GLEW
+
 Modern OpenGL techniques <br />
 Window and input <br />
 Vertex, Fragment and Geometry Shader <br />
