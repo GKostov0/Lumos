@@ -15,17 +15,24 @@ const GLint WIDTH = 800, HEIGHT = 600;
 #define ERROR_SHADER_LINK_FAILED 6
 #define ERROR_SHADER_VALIDATION_FAILED 7
 
-GLuint VAO, VBO, shaderProgram;
+GLuint VAO, VBO, shaderProgram, uniformXMove;
+
+bool isGoingLeft = true;
+float triangleOffset = 0.0f;
+float triangleMaxOffset = 0.9f;
+float speed = 0.0005f;
 
 // Vertex Shader
-static const char* vShader = "			\n\
-#version 330							\n\
-										\n\
-layout (location = 0) in vec3 pos;		\n\
-										\n\
-void main()								\n\
-{										\n\
-	gl_Position = vec4(0.4f * pos, 1.0f);		\n\
+static const char* vShader = "												\n\
+#version 330																\n\
+																			\n\
+layout (location = 0) in vec3 pos;											\n\
+																			\n\
+uniform float xMove;														\n\
+																			\n\
+void main()																	\n\
+{																			\n\
+	gl_Position = vec4(0.4f * pos.x + xMove, 0.4f * pos.y, pos.z, 1.0f);	\n\
 }";
 
 // Fragment Shader
@@ -118,6 +125,8 @@ int CompileShaders()
 		return ERROR_SHADER_VALIDATION_FAILED;
 	}
 
+	uniformXMove = glGetUniformLocation(shaderProgram, "xMove");
+
 	return NO_ERROR;
 }
 
@@ -207,11 +216,29 @@ int main()
 		// Handle user input
 		glfwPollEvents();
 
+		// Move triangle
+		if (isGoingLeft)
+		{
+			triangleOffset -= speed;
+		}
+		else
+		{
+			triangleOffset += speed;
+		}
+
+		if (abs(triangleOffset) >= triangleMaxOffset)
+		{
+			isGoingLeft = !isGoingLeft;
+		}
+
 		// Clear window
 		glClearColor(1.0f, 0.3f, 0.4f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
+		
+		// Moves the triangle
+		glUniform1f(uniformXMove, triangleOffset);
 
 		glBindVertexArray(VAO);
 
