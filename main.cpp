@@ -6,6 +6,10 @@
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
 
+#define ERROR_GLFW_INIT_FAILED 1
+#define ERROR_GLFW_WINDOW_CREATION_FAILED 2
+#define ERROR_GLEW_INIT_FAILED 3
+
 int main()
 {
 
@@ -15,8 +19,7 @@ int main()
 		std::cout << "[ERROR]: GLFW Init Failed!" << std::endl;
 		glfwTerminate();
 
-		// TODO: Add Error Codes
-		return -1;
+		return ERROR_GLFW_INIT_FAILED;
 	}
 
 	// Setup GLFW window properties
@@ -34,8 +37,7 @@ int main()
 		std::cout << "[ERROR]: GLFW window creation Failed!" << std::endl;
 		glfwTerminate();
 
-		// TODO: Add Error Codes
-		return -1;
+		return ERROR_GLFW_WINDOW_CREATION_FAILED;
 	}
 
 	// Get Buffer size info
@@ -54,8 +56,7 @@ int main()
 		glfwDestroyWindow(mainWindow);
 		glfwTerminate();
 
-		// TODO: Add Error Codes
-		return -1;
+		return ERROR_GLEW_INIT_FAILED;
 	}
 
 	// Setup Viewport size
