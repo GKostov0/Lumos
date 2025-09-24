@@ -3,6 +3,8 @@
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
 
+#include <mat4x4.hpp>
+
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
 
