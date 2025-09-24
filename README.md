@@ -19,3 +19,7 @@ Phong Lighting Model - Most common <br />
 Importing pre-made models (Blender, 3DS Max, Maya) <br />
 Shadow Mpping (from multiple light sources) - directional and omni <br />
 Skybox <br />
+
+Dependencies: <br />
+GLEW - extention interfaces for modern OpenGL above 1.1 <br />
+Some are platform specific <br />
