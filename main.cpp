@@ -32,7 +32,7 @@ uniform mat4 model;															\n\
 																			\n\
 void main()																	\n\
 {																			\n\
-	gl_Position = model * vec4(0.6f * pos, 1.0f);							\n\
+	gl_Position = model * vec4(pos, 1.0f);									\n\
 }";
 
 // Fragment Shader
@@ -241,8 +241,9 @@ int main()
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
-		model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		//model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
+		//model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		
 		// Moves the triangle
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
