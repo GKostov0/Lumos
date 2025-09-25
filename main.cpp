@@ -3,19 +3,21 @@
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
 
-#include <mat4x4.hpp>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 #include "ErrorCodes.h"
 
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
 
-GLuint VAO, VBO, shaderProgram, uniformXMove;
+GLuint VAO, VBO, shaderProgram, uniformModel;
 
 bool isGoingLeft = true;
 float triangleOffset = 0.0f;
-float triangleMaxOffset = 0.9f;
-float speed = 0.0005f;
+float triangleMaxOffset = 0.6f;
+float speed = 0.0002f;
 
 // Vertex Shader
 static const char* vShader = "												\n\
@@ -23,11 +25,11 @@ static const char* vShader = "												\n\
 																			\n\
 layout (location = 0) in vec3 pos;											\n\
 																			\n\
-uniform float xMove;														\n\
+uniform mat4 model;															\n\
 																			\n\
 void main()																	\n\
 {																			\n\
-	gl_Position = vec4(0.4f * pos.x + xMove, 0.4f * pos.y, pos.z, 1.0f);	\n\
+	gl_Position = model * vec4(0.4f * pos, 1.0f);							\n\
 }";
 
 // Fragment Shader
@@ -120,7 +122,7 @@ int CompileShaders()
 		return ERROR_SHADER_VALIDATION_FAILED;
 	}
 
-	uniformXMove = glGetUniformLocation(shaderProgram, "xMove");
+	uniformModel = glGetUniformLocation(shaderProgram, "model");
 
 	return NO_ERROR;
 }
@@ -231,9 +233,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
+
+		// Identity matrix
+		glm::mat4 model(1.0f);
+		model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
 		
 		// Moves the triangle
-		glUniform1f(uniformXMove, triangleOffset);
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		glBindVertexArray(VAO);
 
