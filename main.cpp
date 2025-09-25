@@ -5,17 +5,10 @@
 
 #include <mat4x4.hpp>
 
+#include "ErrorCodes.h"
+
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
-
-#define NO_ERROR 0
-#define ERROR_GLFW_INIT_FAILED 1
-#define ERROR_GLFW_WINDOW_CREATION_FAILED 2
-#define ERROR_GLEW_INIT_FAILED 3
-#define ERROR_SHADER_PROGRAM_FAILED 4
-#define ERROR_SHADER_COMPILATION_FAILED 5
-#define ERROR_SHADER_LINK_FAILED 6
-#define ERROR_SHADER_VALIDATION_FAILED 7
 
 GLuint VAO, VBO, shaderProgram, uniformXMove;
 
