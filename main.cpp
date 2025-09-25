@@ -28,22 +28,27 @@ static const char* vShader = "												\n\
 																			\n\
 layout (location = 0) in vec3 pos;											\n\
 																			\n\
+out vec4 vColor;															\n\
+																			\n\
 uniform mat4 model;															\n\
 																			\n\
 void main()																	\n\
 {																			\n\
 	gl_Position = model * vec4(pos, 1.0f);									\n\
+	vColor = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);							\n\
 }";
 
 // Fragment Shader
 static const char* fShader = "				\n\
 #version 330								\n\
 											\n\
+in vec4 vColor;								\n\
+											\n\
 out vec4 color;								\n\
 											\n\
 void main()									\n\
 {											\n\
-	color = vec4(0.3f, 0.4f, 1.0f, 1.0f);	\n\
+	color = vColor;							\n\
 }";
 
 int AddShader(GLuint program, const char* shaderCode, GLenum shaderType)
@@ -234,7 +239,7 @@ int main()
 		}
 
 		// Clear window
-		glClearColor(1.0f, 0.3f, 0.4f, 1.0f);
+		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
