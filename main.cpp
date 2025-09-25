@@ -11,6 +11,7 @@
 
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
+const float toRadians = 3.14159265f / 180.0f;
 
 GLuint VAO, VBO, shaderProgram, uniformModel;
 
@@ -18,6 +19,8 @@ bool isGoingLeft = true;
 float triangleOffset = 0.0f;
 float triangleMaxOffset = 0.6f;
 float speed = 0.0002f;
+
+float currAngle = 0.0f;
 
 // Vertex Shader
 static const char* vShader = "												\n\
@@ -29,7 +32,7 @@ uniform mat4 model;															\n\
 																			\n\
 void main()																	\n\
 {																			\n\
-	gl_Position = model * vec4(0.4f * pos, 1.0f);							\n\
+	gl_Position = model * vec4(0.6f * pos, 1.0f);							\n\
 }";
 
 // Fragment Shader
@@ -223,6 +226,8 @@ int main()
 			triangleOffset += speed;
 		}
 
+		currAngle = currAngle >= 360.0f ? 0.0f : currAngle + 0.06f;
+
 		if (abs(triangleOffset) >= triangleMaxOffset)
 		{
 			isGoingLeft = !isGoingLeft;
@@ -237,6 +242,7 @@ int main()
 		// Identity matrix
 		glm::mat4 model(1.0f);
 		model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
+		model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		
 		// Moves the triangle
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
