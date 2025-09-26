@@ -13,7 +13,8 @@
 const GLint WIDTH = 800, HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
-GLuint VAO, VBO, IBO, shaderProgram, uniformModel;
+GLuint VAO, VBO, IBO, shaderProgram;
+GLuint uniformModel, uniformProjection;
 
 bool isGoingLeft = true;
 float triangleOffset = 0.0f;
@@ -31,10 +32,11 @@ layout (location = 0) in vec3 pos;											\n\
 out vec4 vColor;															\n\
 																			\n\
 uniform mat4 model;															\n\
+uniform mat4 projection;													\n\
 																			\n\
 void main()																	\n\
 {																			\n\
-	gl_Position = model * vec4(pos, 1.0f);									\n\
+	gl_Position = projection * model * vec4(pos, 1.0f);						\n\
 	vColor = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);							\n\
 }";
 
@@ -131,6 +133,7 @@ int CompileShaders()
 	}
 
 	uniformModel = glGetUniformLocation(shaderProgram, "model");
+	uniformProjection = glGetUniformLocation(shaderProgram, "projection");
 
 	return NO_ERROR;
 }
@@ -230,6 +233,8 @@ int main()
 	CreateTriangle();
 	CompileShaders();
 
+	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)bufferWidth / (GLfloat)bufferHeight, 0.1f, 100.0f);
+
 	// Main loop
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -246,7 +251,7 @@ int main()
 			triangleOffset += speed;
 		}
 
-		currAngle = currAngle >= 360.0f ? 0.0f : currAngle + 0.06f;
+		currAngle = currAngle >= 360.0f ? 0.0f : currAngle + 0.04f;
 
 		if (abs(triangleOffset) >= triangleMaxOffset)
 		{
@@ -261,12 +266,13 @@ int main()
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
-		//model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
-		model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(triangleOffset, 0.0f, -3.0f));
+		//model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		
 		// Moves the triangle
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 
 		glBindVertexArray(VAO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
