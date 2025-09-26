@@ -139,12 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameWindow\GameWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh\Mesh.cpp" />
+    <ClCompile Include="Shader\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorCodes.h" />
+    <ClInclude Include="GameWindow\GameWindow.h" />
     <ClInclude Include="Mesh\Mesh.h" />
+    <ClInclude Include="Shader\Shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

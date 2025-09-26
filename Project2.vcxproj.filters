@@ -21,12 +21,24 @@
     <ClCompile Include="Mesh\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shader\Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameWindow\GameWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWindow\GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

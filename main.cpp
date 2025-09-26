@@ -10,14 +10,17 @@
 
 #include "ErrorCodes.h"
 #include "Mesh/Mesh.h"
+#include "Shader/Shader.h"
+#include "GameWindow/GameWindow.h"
 
 // Window dimentions
 const GLint WIDTH = 800, HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
-std::vector<Mesh*> meshList;
+GameWindow gameWindow(800, 600);
 
-GLuint shaderProgram, uniformModel, uniformProjection;
+std::vector<Mesh*> meshList;
+std::vector<Shader> shaderList;
 
 bool isGoingLeft = true;
 float triangleOffset = 0.0f;
@@ -26,122 +29,10 @@ float speed = 0.0002f;
 
 float currAngle = 0.0f;
 
-// Vertex Shader
-static const char* vShader = "												\n\
-#version 330																\n\
-																			\n\
-layout (location = 0) in vec3 pos;											\n\
-																			\n\
-out vec4 vColor;															\n\
-																			\n\
-uniform mat4 model;															\n\
-uniform mat4 projection;													\n\
-																			\n\
-void main()																	\n\
-{																			\n\
-	gl_Position = projection * model * vec4(pos, 1.0f);						\n\
-	vColor = vec4(clamp(pos, 0.0f, 1.0f), 1.0f);							\n\
-}";
+static const char* vShader = "Shader/shader.vert";
+static const char* fShader = "Shader/shader.frag";
 
-// Fragment Shader
-static const char* fShader = "				\n\
-#version 330								\n\
-											\n\
-in vec4 vColor;								\n\
-											\n\
-out vec4 color;								\n\
-											\n\
-void main()									\n\
-{											\n\
-	color = vColor;							\n\
-}";
-
-int AddShader(GLuint program, const char* shaderCode, GLenum shaderType)
-{
-	GLuint shader = glCreateShader(shaderType);
-
-	const GLchar* code[1];
-	code[0] = shaderCode;
-
-	GLint codeLength[1];
-	codeLength[0] = strlen(shaderCode);
-
-	glShaderSource(shader, 1, code, codeLength);
-	glCompileShader(shader);
-
-	GLint result = 0;
-	GLchar log[1024] = { 0 };
-
-	// Compilation
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-
-	if (!result)
-	{
-		glGetShaderInfoLog(shader, sizeof(log), NULL, log);
-
-		std::cout << "[ERROR]: Shader program " << shaderType << " compilation Failed!\n[INFO]: " << log << std::endl;
-		return ERROR_SHADER_COMPILATION_FAILED;
-	}
-
-	glAttachShader(shaderProgram, shader);
-
-	return NO_ERROR;
-}
-
-int CompileShaders()
-{
-	shaderProgram = glCreateProgram();
-
-	if (!shaderProgram)
-	{
-		std::cout << "[ERROR]: Shader program Failed!" << std::endl;
-
-		return ERROR_SHADER_PROGRAM_FAILED;
-	}
-
-	if (AddShader(shaderProgram, vShader, GL_VERTEX_SHADER) != NO_ERROR)
-	{
-		return ERROR_SHADER_COMPILATION_FAILED;
-	}
-	if (AddShader(shaderProgram, fShader, GL_FRAGMENT_SHADER) != NO_ERROR)
-	{
-		return ERROR_SHADER_COMPILATION_FAILED;
-	}
-
-	GLint result = 0;
-	GLchar log[1024] = { 0 };
-
-	// Linking
-	glLinkProgram(shaderProgram);
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
-	
-	if (!result)
-	{
-		glGetProgramInfoLog(shaderProgram, sizeof(log), NULL, log);
-
-		std::cout << "[ERROR]: Shader program linking Failed! \n[INFO]: " << log << std::endl;
-		return ERROR_SHADER_LINK_FAILED;
-	}
-
-	// Validation
-	glValidateProgram(shaderProgram);
-	glGetProgramiv(shaderProgram, GL_VALIDATE_STATUS, &result);
-
-	if (!result)
-	{
-		glGetProgramInfoLog(shaderProgram, sizeof(log), NULL, log);
-
-		std::cout << "[ERROR]: Shader program validation Failed! \n[INFO]: " << log << std::endl;
-		return ERROR_SHADER_VALIDATION_FAILED;
-	}
-
-	uniformModel = glGetUniformLocation(shaderProgram, "model");
-	uniformProjection = glGetUniformLocation(shaderProgram, "projection");
-
-	return NO_ERROR;
-}
-
-void CreateTriangle()
+void CreateObjects()
 {
 	unsigned int indices[] =
 	{
@@ -160,70 +51,35 @@ void CreateTriangle()
 	};
 
 	Mesh* obj1 = new Mesh();
+	Mesh* obj2 = new Mesh();
+
 	obj1->CreateMesh(vertices, indices, 12, 12);
+	obj2->CreateMesh(vertices, indices, 12, 12);
+
 	meshList.push_back(obj1);
+	meshList.push_back(obj2);
+}
+
+void CreateShaders()
+{
+	Shader* shader1 = new Shader();
+	shader1->CreateFromFiles(vShader, fShader);
+	shaderList.push_back(*shader1);
 }
 
 int main()
 {
-	// Init GLFW
-	if (!glfwInit())
-	{
-		std::cout << "[ERROR]: GLFW Init Failed!" << std::endl;
-		glfwTerminate();
+	gameWindow.Ititialize();
 
-		return ERROR_GLFW_INIT_FAILED;
-	}
+	CreateObjects();
+	CreateShaders();
 
-	// Setup GLFW window properties
-	// OpenGL version
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	GLuint uniformModel, uniformProjection;
 
-	// Coe profile mans no backwards comaptibility and no old or depricated stuff!
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-	GLFWwindow* mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Lumos", nullptr, nullptr);
-	if (!mainWindow)
-	{
-		std::cout << "[ERROR]: GLFW window creation Failed!" << std::endl;
-		glfwTerminate();
-
-		return ERROR_GLFW_WINDOW_CREATION_FAILED;
-	}
-
-	// Get Buffer size info
-	int bufferWidth, bufferHeight;
-	glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
-
-	// Set context for GLEW to use
-	glfwMakeContextCurrent(mainWindow);
-
-	// Allow modern extentions and features
-	glewExperimental = GL_TRUE;
-
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "[ERROR]: GLEW Init Failed!" << std::endl;
-		glfwDestroyWindow(mainWindow);
-		glfwTerminate();
-
-		return ERROR_GLEW_INIT_FAILED;
-	}
-
-	glEnable(GL_DEPTH_TEST);
-
-	// Setup Viewport size
-	glViewport(0, 0, bufferWidth, bufferHeight);
-
-	CreateTriangle();
-	CompileShaders();
-
-	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)bufferWidth / (GLfloat)bufferHeight, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(45.0f, gameWindow.GetBufferWidth()/ gameWindow.GetBufferHeight(), 0.1f, 100.0f);
 
 	// Main loop
-	while (!glfwWindowShouldClose(mainWindow))
+	while (!gameWindow.GetShouldClose())
 	{
 		// Handle user input
 		glfwPollEvents();
@@ -249,12 +105,13 @@ int main()
 		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
+		shaderList[0].UseShader();
+		uniformModel = shaderList[0].GetModelLocation();
+		uniformProjection = shaderList[0].GetProjectionLocation();
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(triangleOffset, 0.0f, -3.0f));
-		//model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(triangleOffset, -0.5f, -3.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		
 		// Moves the triangle
@@ -263,9 +120,17 @@ int main()
 
 		meshList[0]->RenderMesh();
 
+		// Identity matrix
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-triangleOffset, 0.8f, -3.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		meshList[1]->RenderMesh();
+
 		glUseProgram(0);
 
 		// Double buffer swap
-		glfwSwapBuffers(mainWindow);
+		gameWindow.SwapBuffers();
 	}
 }
