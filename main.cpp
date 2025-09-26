@@ -13,7 +13,7 @@
 const GLint WIDTH = 800, HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
-GLuint VAO, VBO, shaderProgram, uniformModel;
+GLuint VAO, VBO, IBO, shaderProgram, uniformModel;
 
 bool isGoingLeft = true;
 float triangleOffset = 0.0f;
@@ -137,15 +137,28 @@ int CompileShaders()
 
 void CreateTriangle()
 {
+	unsigned int indices[] =
+	{
+		0, 3, 1, // Left side
+		1, 3, 2, // Right side
+		2, 3, 0, // Front side
+		0, 1, 2  // Bottom side
+	};
+
 	GLfloat vertices[] =
 	{
 		-1.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 1.0f,
 		1.0f, -1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f
 	};
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
+
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -156,13 +169,13 @@ void CreateTriangle()
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	glBindVertexArray(0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind this after unbinding the VAO
 }
 
 int main()
 {
-
 	// Init GLFW
 	if (!glfwInit())
 	{
@@ -209,6 +222,8 @@ int main()
 		return ERROR_GLEW_INIT_FAILED;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	// Setup Viewport size
 	glViewport(0, 0, bufferWidth, bufferHeight);
 
@@ -240,23 +255,25 @@ int main()
 
 		// Clear window
 		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
 		//model = glm::translate(model, glm::vec3(triangleOffset, triangleOffset, 0.0f));
-		//model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, currAngle * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		
 		// Moves the triangle
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		glBindVertexArray(VAO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
 		glUseProgram(0);
