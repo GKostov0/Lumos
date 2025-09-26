@@ -13,21 +13,12 @@
 #include "Shader/Shader.h"
 #include "GameWindow/GameWindow.h"
 
-// Window dimentions
-const GLint WIDTH = 800, HEIGHT = 600;
 const float toRadians = 3.14159265f / 180.0f;
 
 GameWindow gameWindow(800, 600);
 
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
-
-bool isGoingLeft = true;
-float triangleOffset = 0.0f;
-float triangleMaxOffset = 0.6f;
-float speed = 0.0002f;
-
-float currAngle = 0.0f;
 
 static const char* vShader = "Shader/shader.vert";
 static const char* fShader = "Shader/shader.frag";
@@ -84,23 +75,6 @@ int main()
 		// Handle user input
 		glfwPollEvents();
 
-		// Move triangle
-		if (isGoingLeft)
-		{
-			triangleOffset -= speed;
-		}
-		else
-		{
-			triangleOffset += speed;
-		}
-
-		currAngle = currAngle >= 360.0f ? 0.0f : currAngle + 0.04f;
-
-		if (abs(triangleOffset) >= triangleMaxOffset)
-		{
-			isGoingLeft = !isGoingLeft;
-		}
-
 		// Clear window
 		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -111,7 +85,7 @@ int main()
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(triangleOffset, -0.5f, -3.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, -3.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		
 		// Moves the triangle
@@ -122,7 +96,7 @@ int main()
 
 		// Identity matrix
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-triangleOffset, 0.8f, -3.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.8f, -3.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
