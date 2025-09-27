@@ -32,25 +32,28 @@ void CreateObjects()
 {
 	unsigned int indices[] =
 	{
-		0, 3, 1, // Left side
-		1, 3, 2, // Right side
-		2, 3, 0, // Back side
-		0, 1, 2  // Bottom side
+		0, 1, 2, // Front
+		0, 1, 3, // Left Side
+		2, 1, 4, // Right Side
+		3, 1, 4, // Back Side
+		0, 4, 3, // Bottom Left Side
+		0, 4, 2  // Bottom Right Side
 	};
 
 	GLfloat vertices[] =
 	{
-		-1.0f, -1.0f, 0.0f,
-		0.0f, -1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f
+		-1,  -1,  0,    // Bottom Left Front
+		 0,   1,  -0.5, // Top
+		 1,  -1,  0,    // Bottom Right Front
+		-1,  -1, -1,    //Bottom Left Back
+		 1,  -1, -1     // Bottom Right Back
 	};
 
 	Mesh* obj1 = new Mesh();
 	Mesh* obj2 = new Mesh();
 
-	obj1->CreateMesh(vertices, indices, 12, 12);
-	obj2->CreateMesh(vertices, indices, 12, 12);
+	obj1->CreateMesh(vertices, indices, 15, 18);
+	obj2->CreateMesh(vertices, indices, 15, 18);
 
 	meshList.push_back(obj1);
 	meshList.push_back(obj2);
