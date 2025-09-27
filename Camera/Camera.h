@@ -14,7 +14,8 @@ public:
 		GLfloat startYaw, GLfloat startPitch,
 		GLfloat startMoveSpeed, GLfloat startTurnSpeed);
 
-	void KeyControls(bool* keys);
+	void KeyControls(bool* keys, GLfloat deltaTime);
+	void MouseControl(GLfloat xChange, GLfloat yChange);
 
 	glm::mat4 CalculateViewMatrix();
 

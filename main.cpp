@@ -22,6 +22,9 @@ std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
 
+GLfloat deltaTime = 0.0f;
+GLfloat lastTime = 0.0f;
+
 static const char* vShader = "Shader/shader.vert";
 static const char* fShader = "Shader/shader.frag";
 
@@ -67,7 +70,7 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	camera = Camera(glm::vec3(), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 0.001f, 1.0f);
+	camera = Camera(glm::vec3(), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f);
 
 	GLuint uniformModel, uniformProjection, unifromView;
 
@@ -76,10 +79,15 @@ int main()
 	// Main loop
 	while (!gameWindow.GetShouldClose())
 	{
+		GLfloat now = glfwGetTime();
+		deltaTime = now - lastTime;
+		lastTime = now;
+
 		// Handle user input
 		glfwPollEvents();
 
-		camera.KeyControls(gameWindow.GetKeys());
+		camera.KeyControls(gameWindow.GetKeys(), deltaTime);
+		camera.MouseControl(gameWindow.GetXChange(), gameWindow.GetYChange());
 
 		// Clear window
 		glClearColor(0.1f, 0.2f, 0.3f, 1.0f);

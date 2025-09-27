@@ -16,7 +16,7 @@ Camera::Camera()
 	:
 	_position(glm::vec3()), _front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	_up(glm::vec3()), _yaw(0.0f), _pitch(0.0f),
-	_moveSpeed(5.0f), _turnSpeed(1.0f),
+	_moveSpeed(5.0f), _turnSpeed(0.5f),
 	_right(glm::vec3()), _worldUp(glm::vec3(0.0f, 1.0f, 0.0f))
 {
 }
@@ -36,27 +36,50 @@ void Camera::Update()
 	_up = glm::normalize(glm::cross(_right, _front));
 }
 
-void Camera::KeyControls(bool* keys)
+void Camera::KeyControls(bool* keys, GLfloat deltaTime)
 {
+	GLfloat velocity = _moveSpeed * deltaTime;
+
 	if (keys[GLFW_KEY_W])
 	{
-		_position += _front * _moveSpeed;
+		_position += _front * velocity;
 	}
 
 	if (keys[GLFW_KEY_S])
 	{
-		_position -= _front * _moveSpeed;
+		_position -= _front * velocity;
 	}
 
 	if (keys[GLFW_KEY_A])
 	{
-		_position -= _right * _moveSpeed;
+		_position -= _right * velocity;
 	}
 
 	if (keys[GLFW_KEY_D])
 	{
-		_position += _right * _moveSpeed;
+		_position += _right * velocity;
 	}
+}
+
+void Camera::MouseControl(GLfloat xChange, GLfloat yChange)
+{
+	xChange *= _turnSpeed;
+	yChange *= _turnSpeed;
+
+	_yaw += xChange;
+	_pitch += yChange;
+
+	if (_pitch > 89.0f)
+	{
+		_pitch = 89.0f;
+	}
+
+	if (_pitch < -89.0f)
+	{
+		_pitch = -89.0f;
+	}
+
+	Update();
 }
 
 glm::mat4 Camera::CalculateViewMatrix()
