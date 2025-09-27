@@ -24,4 +24,10 @@ private:
 	GLFWwindow* _mainWindow;
 	GLint _width, _height;
 	GLint _bufferWidth, _bufferHeight;
+
+	bool _keys[1024] = {};
+
+	void CreateCallbacks();
+
+	static void HandleKeys(GLFWwindow* win, int key, int code, int action, int mode);
 };

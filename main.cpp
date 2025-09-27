@@ -29,7 +29,7 @@ void CreateObjects()
 	{
 		0, 3, 1, // Left side
 		1, 3, 2, // Right side
-		2, 3, 0, // Front side
+		2, 3, 0, // Back side
 		0, 1, 2  // Bottom side
 	};
 

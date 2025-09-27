@@ -51,6 +51,9 @@ int GameWindow::Ititialize()
 	// Set context for GLEW to use
 	glfwMakeContextCurrent(_mainWindow);
 
+	// Handle keyboard and mouse
+	CreateCallbacks();
+
 	// Allow modern extentions and features
 	glewExperimental = GL_TRUE;
 
@@ -66,4 +69,36 @@ int GameWindow::Ititialize()
 	glEnable(GL_DEPTH_TEST);
 
 	glViewport(0, 0, _bufferWidth, _bufferHeight);
+
+	glfwSetWindowUserPointer(_mainWindow, this);
+}
+
+void GameWindow::CreateCallbacks()
+{
+	glfwSetKeyCallback(_mainWindow, HandleKeys);
+}
+
+// Static
+void GameWindow::HandleKeys(GLFWwindow* win, int key, int code, int action, int mode)
+{
+	GameWindow* pWindow = static_cast<GameWindow*>(glfwGetWindowUserPointer(win));
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(win, GL_TRUE);
+	}
+
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+		{
+			pWindow->_keys[key] = true;
+			std::cout << "Pressed: " << key << " Key" << std::endl;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			pWindow->_keys[key] = false;
+			std::cout << "Released: " << key << " Key" << std::endl;
+		}
+	}
 }
