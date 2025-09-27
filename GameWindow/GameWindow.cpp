@@ -2,12 +2,14 @@
 #include "../ErrorCodes.h"
 
 GameWindow::GameWindow()
-	: _width(800), _height(600), _bufferWidth(0), _bufferHeight(0), _mainWindow(nullptr)
+	: _width(800), _height(600), _bufferWidth(0), _bufferHeight(0), _mainWindow(nullptr),
+		_lastX(0), _lastY(0), _xChange(0), _yChange(0), _isInitialMove(true)
 {
 }
 
 GameWindow::GameWindow(GLuint windowWidth, GLuint windowHeight)
-	: _width(windowWidth), _height(windowHeight), _bufferWidth(0), _bufferHeight(0), _mainWindow(nullptr)
+	: _width(windowWidth), _height(windowHeight), _bufferWidth(0), _bufferHeight(0), _mainWindow(nullptr),
+		_lastX(0), _lastY(0), _xChange(0), _yChange(0), _isInitialMove(true)
 {
 }
 
@@ -54,6 +56,9 @@ int GameWindow::Ititialize()
 	// Handle keyboard and mouse
 	CreateCallbacks();
 
+	// Hide the mouse when playing
+	glfwSetInputMode(_mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// Allow modern extentions and features
 	glewExperimental = GL_TRUE;
 
@@ -73,9 +78,26 @@ int GameWindow::Ititialize()
 	glfwSetWindowUserPointer(_mainWindow, this);
 }
 
+GLfloat GameWindow::GetXChange()
+{
+	GLfloat result = _xChange;
+	_xChange = 0.0f;
+
+	return result;
+}
+
+GLfloat GameWindow::GetYChange()
+{
+	GLfloat result = _yChange;
+	_yChange = 0.0f;
+
+	return result;
+}
+
 void GameWindow::CreateCallbacks()
 {
 	glfwSetKeyCallback(_mainWindow, HandleKeys);
+	glfwSetCursorPosCallback(_mainWindow, HandleMouse);
 }
 
 // Static
@@ -93,12 +115,34 @@ void GameWindow::HandleKeys(GLFWwindow* win, int key, int code, int action, int 
 		if (action == GLFW_PRESS)
 		{
 			pWindow->_keys[key] = true;
-			std::cout << "Pressed: " << key << " Key" << std::endl;
+			//std::cout << "Pressed: " << key << " Key" << std::endl;
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			pWindow->_keys[key] = false;
-			std::cout << "Released: " << key << " Key" << std::endl;
+			//std::cout << "Released: " << key << " Key" << std::endl;
 		}
 	}
+}
+
+void GameWindow::HandleMouse(GLFWwindow* win, double xPos, double yPos)
+{
+	GameWindow* pWindow = static_cast<GameWindow*>(glfwGetWindowUserPointer(win));
+
+	if (pWindow->_isInitialMove)
+	{
+		pWindow->_lastX = xPos;
+		pWindow->_lastY = yPos;
+
+		pWindow->_isInitialMove = false;
+	}
+
+	// yPos - pWindow->_lastY to invert Y
+	pWindow->_xChange = xPos - pWindow->_lastX;
+	pWindow->_yChange = pWindow->_lastY - yPos;
+
+	pWindow->_lastX = xPos;
+	pWindow->_lastY = yPos;
+
+	//std::cout << "X: " << pWindow->_xChange  << " Y: " << pWindow->_yChange << std::endl;
 }

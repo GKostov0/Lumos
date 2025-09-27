@@ -18,6 +18,11 @@ public:
 
 	bool GetShouldClose() { return glfwWindowShouldClose(_mainWindow); }
 
+	bool* GetKeys() { return _keys; }
+
+	GLfloat GetXChange();
+	GLfloat GetYChange();
+
 	void SwapBuffers() { glfwSwapBuffers(_mainWindow); }
 
 private:
@@ -27,7 +32,12 @@ private:
 
 	bool _keys[1024] = {};
 
+	GLfloat _lastX, _lastY;
+	GLfloat _xChange, _yChange;
+	bool _isInitialMove;
+
 	void CreateCallbacks();
 
 	static void HandleKeys(GLFWwindow* win, int key, int code, int action, int mode);
+	static void HandleMouse(GLFWwindow* win, double xPos, double yPos);
 };
