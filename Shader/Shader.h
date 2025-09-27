@@ -18,13 +18,14 @@ public:
 	std::string ReadFile(const char* fileLocation);
 
 	GLuint GetProjectionLocation() const { return _uniformProjection; }
+	GLuint GetViewLocation() const { return _uniformView; };
 	GLuint GetModelLocation() const { return _uniformModel; };
 
 	void UseShader();
 	void ClearShader();
 
 private:
-	GLuint _shaderID, _uniformProjection, _uniformModel;
+	GLuint _shaderID, _uniformProjection, _uniformModel, _uniformView;
 
 	void AddShader(GLuint program, const char* shaderCode, GLenum shaderType);
 	void CompileShader(const char* vCode, const char* fCode);

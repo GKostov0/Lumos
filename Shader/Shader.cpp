@@ -1,7 +1,8 @@
 #include "Shader.h"
 
 Shader::Shader()
-	: _shaderID(0), _uniformProjection(0), _uniformModel(0)
+	: _shaderID(0), _uniformProjection(0),
+		_uniformModel(0), _uniformView(0)
 {
 
 }
@@ -140,5 +141,6 @@ void Shader::CompileShader(const char* vCode, const char* fCode)
 	}
 
 	_uniformModel = glGetUniformLocation(_shaderID, "model");
+	_uniformView = glGetUniformLocation(_shaderID, "view");
 	_uniformProjection = glGetUniformLocation(_shaderID, "projection");
 }

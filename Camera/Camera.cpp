@@ -5,11 +5,20 @@ Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp,
 				GLfloat startMoveSpeed, GLfloat startTurnSpeed)
 	:
 	_position(startPosition), _front(glm::vec3(0.0f, 0.0f, -1.0f)),
-	_up(startUp), _yaw(startYaw), _pitch(startPitch),
+	_up(glm::vec3()), _yaw(startYaw), _pitch(startPitch),
 	_moveSpeed(startMoveSpeed), _turnSpeed(startTurnSpeed),
-	_right(glm::vec3()), _worldUp(glm::vec3())
+	_right(glm::vec3()), _worldUp(startUp)
 {
 	Update();
+}
+
+Camera::Camera()
+	:
+	_position(glm::vec3()), _front(glm::vec3(0.0f, 0.0f, -1.0f)),
+	_up(glm::vec3()), _yaw(0.0f), _pitch(0.0f),
+	_moveSpeed(5.0f), _turnSpeed(1.0f),
+	_right(glm::vec3()), _worldUp(glm::vec3(0.0f, 1.0f, 0.0f))
+{
 }
 
 Camera::~Camera()
@@ -48,4 +57,9 @@ void Camera::KeyControls(bool* keys)
 	{
 		_position += _right * _moveSpeed;
 	}
+}
+
+glm::mat4 Camera::CalculateViewMatrix()
+{
+	return glm::lookAt(_position, _position + _front, _up);
 }
