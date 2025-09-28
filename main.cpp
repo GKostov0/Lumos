@@ -13,6 +13,10 @@
 #include "Shader/Shader.h"
 #include "GameWindow/GameWindow.h"
 #include "Camera/Camera.h"
+#include "Texture/Texture.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "STBI/stb_image.h"
 
 const float toRadians = 3.14159265f / 180.0f;
 
@@ -21,6 +25,9 @@ GameWindow gameWindow(800, 600);
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
+
+Texture brickTexture;
+Texture dirtTexture;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -42,18 +49,19 @@ void CreateObjects()
 
 	GLfloat vertices[] =
 	{
-		-1,  -1,  0,    // Bottom Left Front
-		 0,   1,  -0.5, // Top
-		 1,  -1,  0,    // Bottom Right Front
-		-1,  -1, -1,    //Bottom Left Back
-		 1,  -1, -1     // Bottom Right Back
+	//   x,      y,     z        u        v
+		-1.0f,  -1.0f,  0.0f,    0.0f,    0.0f,				// Bottom Left Front
+		 0.0f,   1.0f,  -0.5f,	 0.5f,    1.0f,				// Top
+		 1.0f,  -1.0f,  0.0f,	 1.0f,	  0.0f,				// Bottom Right Front
+		-1.0f,  -1.0f, -1.0f,	 0.0f,    0.0f,				// Bottom Left Back
+		 1.0f,  -1.0f, -1.0f,	 1.0f,    0.0f				// Bottom Right Back
 	};
 
 	Mesh* obj1 = new Mesh();
 	Mesh* obj2 = new Mesh();
 
-	obj1->CreateMesh(vertices, indices, 15, 18);
-	obj2->CreateMesh(vertices, indices, 15, 18);
+	obj1->CreateMesh(vertices, indices, 25, 18);
+	obj2->CreateMesh(vertices, indices, 25, 18);
 
 	meshList.push_back(obj1);
 	meshList.push_back(obj2);
@@ -74,6 +82,12 @@ int main()
 	CreateShaders();
 
 	camera = Camera(glm::vec3(), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f);
+
+	brickTexture = Texture("Images/brick.png");
+	dirtTexture = Texture("Images/dirt.png");
+
+	brickTexture.LoadTexture();
+	dirtTexture.LoadTexture();
 
 	GLuint uniformModel, uniformProjection, unifromView;
 
@@ -111,6 +125,7 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(unifromView, 1, GL_FALSE, glm::value_ptr(camera.CalculateViewMatrix()));
 
+		brickTexture.UseTexture();
 		meshList[0]->RenderMesh();
 
 		// Identity matrix
@@ -119,6 +134,7 @@ int main()
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
+		dirtTexture.UseTexture();
 		meshList[1]->RenderMesh();
 
 		glUseProgram(0);
