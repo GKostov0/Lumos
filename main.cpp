@@ -49,12 +49,13 @@ void CreateObjects()
 
 	GLfloat vertices[] =
 	{
+		// Positions			 //Texture
 	//   x,      y,     z        u        v
 		-1.0f,  -1.0f,  0.0f,    0.0f,    0.0f,				// Bottom Left Front
 		 0.0f,   1.0f,  -0.5f,	 0.5f,    1.0f,				// Top
 		 1.0f,  -1.0f,  0.0f,	 1.0f,	  0.0f,				// Bottom Right Front
-		-1.0f,  -1.0f, -1.0f,	 0.0f,    0.0f,				// Bottom Left Back
-		 1.0f,  -1.0f, -1.0f,	 1.0f,    0.0f				// Bottom Right Back
+		-1.0f,  -1.0f, -1.0f,	 0.0f,    1.0f,				// Bottom Left Back
+		 1.0f,  -1.0f, -1.0f,	 1.0f,    1.0f				// Bottom Right Back
 	};
 
 	Mesh* obj1 = new Mesh();
