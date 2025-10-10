@@ -14,6 +14,7 @@
 #include "GameWindow/GameWindow.h"
 #include "Camera/Camera.h"
 #include "Texture/Texture.h"
+#include "Light/Light.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "STBI/stb_image.h"
@@ -28,6 +29,8 @@ Camera camera;
 
 Texture brickTexture;
 Texture dirtTexture;
+
+Light mainLight;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -90,7 +93,10 @@ int main()
 	brickTexture.LoadTexture();
 	dirtTexture.LoadTexture();
 
-	GLuint uniformModel, uniformProjection, unifromView;
+	mainLight = Light(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+
+	GLuint uniformModel = 0, uniformProjection = 0, unifromView = 0;
+	GLuint uniformambientColor = 0, uniformambientIntensity = 0;
 
 	glm::mat4 projection = glm::perspective(45.0f, gameWindow.GetBufferWidth()/ gameWindow.GetBufferHeight(), 0.1f, 100.0f);
 
@@ -115,6 +121,10 @@ int main()
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		unifromView = shaderList[0].GetViewLocation();
+		uniformambientColor = shaderList[0].GetAmbientColorLocation();
+		uniformambientIntensity = shaderList[0].GetAmbientIntensityLocation();
+
+		mainLight.UseLight(uniformambientColor, uniformambientIntensity);
 
 		// Identity matrix
 		glm::mat4 model(1.0f);

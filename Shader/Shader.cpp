@@ -143,4 +143,6 @@ void Shader::CompileShader(const char* vCode, const char* fCode)
 	_uniformModel = glGetUniformLocation(_shaderID, "model");
 	_uniformView = glGetUniformLocation(_shaderID, "view");
 	_uniformProjection = glGetUniformLocation(_shaderID, "projection");
+	_uniformAmbientColor = glGetUniformLocation(_shaderID, "directionalLight.color");
+	_uniformAmbientIntensity = glGetUniformLocation(_shaderID, "directionalLight.ambientIntensity");
 }
