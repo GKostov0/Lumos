@@ -38,6 +38,43 @@ GLfloat lastTime = 0.0f;
 static const char* vShader = "Shader/shader.vert";
 static const char* fShader = "Shader/shader.frag";
 
+void CalculateAverageNormals(unsigned int* indices, unsigned int indiceCount,
+	GLfloat* vertices, unsigned int verticeCount,
+	unsigned int vLength, unsigned int normalOffset)
+{
+	for (size_t i = 0; i < indiceCount; i += 3)
+	{
+		unsigned int in0 = indices[i] * vLength;
+		unsigned int in1 = indices[i + 1] * vLength;
+		unsigned int in2 = indices[i + 2] * vLength;
+
+		glm::vec3 v1(vertices[in1] - vertices[in0], vertices[in1 + 1] - vertices[in0 + 1], vertices[in1 + 2] - vertices[in0 + 2]);
+		glm::vec3 v2(vertices[in2] - vertices[in0], vertices[in2 + 1] - vertices[in0 + 1], vertices[in2 + 2] - vertices[in0 + 2]);
+
+		glm::vec3 normal = glm::cross(v1, v2);
+		normal = glm::normalize(normal);
+
+		in0 += normalOffset;
+		in1 += normalOffset;
+		in2 += normalOffset;
+
+		vertices[in0] += normal.x; vertices[in0 + 1] += normal.y; vertices[in0 + 2] += normal.z;
+		vertices[in1] += normal.x; vertices[in1 + 1] += normal.y; vertices[in1 + 2] += normal.z;
+		vertices[in2] += normal.x; vertices[in2 + 1] += normal.y; vertices[in2 + 2] += normal.z;
+	}
+
+	for (size_t i = 0; i < verticeCount / vLength; i++)
+	{
+		unsigned int nOffset = i * vLength + normalOffset;
+		glm::vec3 vec(vertices[nOffset], vertices[nOffset + 1], vertices[nOffset + 2]);
+		vec = glm::normalize(vec);
+
+		vertices[nOffset] = vec.x;
+		vertices[nOffset + 1] = vec.y;
+		vertices[nOffset + 2] = vec.z;
+	}
+}
+
 void CreateObjects()
 {
 	unsigned int indices[] =
@@ -52,20 +89,22 @@ void CreateObjects()
 
 	GLfloat vertices[] =
 	{
-		// Positions			 //Texture
+		// Positions			 //Texture       // Normals
 	//   x,      y,     z        u        v
-		-1.0f,  -1.0f,  0.0f,    0.0f,    0.0f,				// Bottom Left Front
-		 0.0f,   1.0f,  -0.5f,	 0.5f,    1.0f,				// Top
-		 1.0f,  -1.0f,  0.0f,	 1.0f,	  0.0f,				// Bottom Right Front
-		-1.0f,  -1.0f, -1.0f,	 0.0f,    1.0f,				// Bottom Left Back
-		 1.0f,  -1.0f, -1.0f,	 1.0f,    1.0f				// Bottom Right Back
+		-1.0f,  -1.0f,  0.0f,    0.0f,    0.0f,	  0.0f, 0.0f, 0.0f,			// Bottom Left Front
+		 0.0f,   1.0f,  -0.5f,	 0.5f,    1.0f,   0.0f, 0.0f, 0.0f,			// Top
+		 1.0f,  -1.0f,  0.0f,	 1.0f,	  0.0f,	  0.0f, 0.0f, 0.0f,			// Bottom Right Front
+		-1.0f,  -1.0f, -1.0f,	 0.0f,    1.0f,	  0.0f, 0.0f, 0.0f,			// Bottom Left Back
+		 1.0f,  -1.0f, -1.0f,	 1.0f,    1.0f,   0.0f, 0.0f, 0.0f			// Bottom Right Back
 	};
+
+	CalculateAverageNormals(indices, 18, vertices, 40, 8, 5);
 
 	Mesh* obj1 = new Mesh();
 	Mesh* obj2 = new Mesh();
 
-	obj1->CreateMesh(vertices, indices, 25, 18);
-	obj2->CreateMesh(vertices, indices, 25, 18);
+	obj1->CreateMesh(vertices, indices, 40, 18);
+	obj2->CreateMesh(vertices, indices, 40, 18);
 
 	meshList.push_back(obj1);
 	meshList.push_back(obj2);
@@ -85,7 +124,7 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	camera = Camera(glm::vec3(), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f);
+	camera = Camera(glm::vec3{}, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f);
 
 	brickTexture = Texture("Images/brick.png");
 	dirtTexture = Texture("Images/dirt.png");
@@ -93,10 +132,11 @@ int main()
 	brickTexture.LoadTexture();
 	dirtTexture.LoadTexture();
 
-	mainLight = Light(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+	mainLight = Light(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f, glm::vec3(0.0f, -1.0f, 0.0f), 1.0f);
 
 	GLuint uniformModel = 0, uniformProjection = 0, unifromView = 0;
-	GLuint uniformambientColor = 0, uniformambientIntensity = 0;
+	GLuint uniformAmbientColor = 0, uniformAmbientIntensity = 0;
+	GLuint uniformDiffuseDirection = 0, uniformDiffuseIntensity = 0;
 
 	glm::mat4 projection = glm::perspective(45.0f, gameWindow.GetBufferWidth()/ gameWindow.GetBufferHeight(), 0.1f, 100.0f);
 
@@ -121,15 +161,22 @@ int main()
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
 		unifromView = shaderList[0].GetViewLocation();
-		uniformambientColor = shaderList[0].GetAmbientColorLocation();
-		uniformambientIntensity = shaderList[0].GetAmbientIntensityLocation();
 
-		mainLight.UseLight(uniformambientColor, uniformambientIntensity);
+		// Ambient
+		uniformAmbientColor = shaderList[0].GetAmbientColorLocation();
+		uniformAmbientIntensity = shaderList[0].GetAmbientIntensityLocation();
+
+		// Diffuse
+		uniformDiffuseDirection = shaderList[0].GetDiffuseDirectionLocation();
+		uniformDiffuseIntensity = shaderList[0].GetDiffuseIntensityLocation();
+
+		mainLight.UseLight(uniformAmbientColor, uniformAmbientIntensity,
+							uniformDiffuseDirection, uniformDiffuseIntensity);
 
 		// Identity matrix
 		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, -3.0f));
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, -2.5f));
+		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		
 		// Moves the triangle
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -141,8 +188,8 @@ int main()
 
 		// Identity matrix
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.8f, -3.0f));
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 1.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.8f, -2.5f));
+		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		dirtTexture.UseTexture();

@@ -21,8 +21,13 @@ public:
 	GLuint GetViewLocation() const { return _uniformView; };
 	GLuint GetModelLocation() const { return _uniformModel; };
 
+	// Ambient
 	GLuint GetAmbientColorLocation() const { return _uniformAmbientColor; };
 	GLuint GetAmbientIntensityLocation() const { return _uniformAmbientIntensity; };
+
+	// Diffuse
+	GLuint GetDiffuseDirectionLocation() const { return _uniformDiffuseDirection; };
+	GLuint GetDiffuseIntensityLocation() const { return _uniformDiffuseIntensity; };
 
 	void UseShader();
 	void ClearShader();
@@ -30,6 +35,7 @@ public:
 private:
 	GLuint _shaderID, _uniformProjection, _uniformModel, _uniformView;
 	GLuint _uniformAmbientColor, _uniformAmbientIntensity;
+	GLuint _uniformDiffuseDirection, _uniformDiffuseIntensity;
 
 	void AddShader(GLuint program, const char* shaderCode, GLenum shaderType);
 	void CompileShader(const char* vCode, const char* fCode);
