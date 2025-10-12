@@ -21,6 +21,8 @@ public:
 	GLuint GetViewLocation() const { return _uniformView; };
 	GLuint GetModelLocation() const { return _uniformModel; };
 
+	GLuint GetEyePositionLocation() const { return _uniformEyePosition; };
+
 	// Ambient
 	GLuint GetAmbientColorLocation() const { return _uniformAmbientColor; };
 	GLuint GetAmbientIntensityLocation() const { return _uniformAmbientIntensity; };
@@ -29,13 +31,19 @@ public:
 	GLuint GetDiffuseDirectionLocation() const { return _uniformDiffuseDirection; };
 	GLuint GetDiffuseIntensityLocation() const { return _uniformDiffuseIntensity; };
 
+	// Material
+	// Specular
+	GLuint GetSpecularShininessLocation() const { return _uniformShininess; };
+	GLuint GetSpecularIntensityLocation() const { return _uniformSpecularIntensity; };
+
 	void UseShader();
 	void ClearShader();
 
 private:
-	GLuint _shaderID, _uniformProjection, _uniformModel, _uniformView;
+	GLuint _shaderID, _uniformProjection, _uniformModel, _uniformView, _uniformEyePosition;
 	GLuint _uniformAmbientColor, _uniformAmbientIntensity;
 	GLuint _uniformDiffuseDirection, _uniformDiffuseIntensity;
+	GLuint _uniformShininess, _uniformSpecularIntensity;
 
 	void AddShader(GLuint program, const char* shaderCode, GLenum shaderType);
 	void CompileShader(const char* vCode, const char* fCode);

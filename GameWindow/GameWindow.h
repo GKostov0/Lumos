@@ -11,7 +11,7 @@ public:
 	GameWindow(GLuint windowWidth, GLuint windowHeight);
 	~GameWindow();
 
-	int Ititialize();
+	int Initialize();
 
 	GLfloat GetBufferWidth() const { return _bufferWidth; }
 	GLfloat GetBufferHeight() const { return _bufferHeight; }

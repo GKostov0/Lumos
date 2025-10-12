@@ -19,7 +19,7 @@ GameWindow::~GameWindow()
 	glfwTerminate();
 }
 
-int GameWindow::Ititialize()
+int GameWindow::Initialize()
 {
 	// Init GLFW
 	if (!glfwInit())

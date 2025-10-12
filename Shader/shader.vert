@@ -7,6 +7,7 @@ layout (location = 2) in vec3 norm;
 out vec4 vColor;
 out vec2 TexCoord;
 out vec3 Normal;
+out vec3 FragmentPosition;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -19,4 +20,6 @@ void main()
 
     TexCoord = tex;
     Normal = mat3(transpose(inverse(model))) * norm;
+
+    FragmentPosition = (model * vec4(pos, 1.0f)).xyz;
 }
