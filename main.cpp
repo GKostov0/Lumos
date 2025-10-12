@@ -14,7 +14,7 @@
 #include "GameWindow/GameWindow.h"
 #include "Camera/Camera.h"
 #include "Texture/Texture.h"
-#include "Light/Light.h"
+#include "Light/Directional/DirectionalLight.h"
 #include "Material/Material.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -34,7 +34,7 @@ Texture dirtTexture;
 Material shinyMaterial;
 Material mattMaterial;
 
-Light mainLight;
+DirectionalLight mainLight;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
@@ -154,7 +154,7 @@ int main()
 	shinyMaterial = Material(128.0f, 1.0f);
 	mattMaterial = Material(8.0f, 0.6f);
 
-	mainLight = Light(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
+	mainLight = DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.5f, glm::vec3(0.0f, -1.0f, 0.0f), 0.3f);
 
 	GLuint uniformModel = 0, uniformProjection = 0, unifromView = 0, uniformEyePosition = 0;
 	GLuint uniformAmbientColor = 0, uniformAmbientIntensity = 0;
